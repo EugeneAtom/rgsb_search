@@ -1,11 +1,12 @@
 import uvicorn
 from pydantic import BaseModel
-from fastapi import FastAPI, File
+from fastapi import FastAPI, File, UploadFile
 import torch
 from torchvision import models, transforms
 import numpy as np
 from PIL import Image
 import io
+from typing import List
 
 
 app = FastAPI()
@@ -46,13 +47,21 @@ def test():
 
 
 @app.post('/vectorize')
-def vectorize(image_data: bytes = File(...)):
-    embedding = vectorize_image(image_data)
-    print(embedding.shape)
+def vectorize(image_data: UploadFile = File(...)):
+    embedding = vectorize_image(image_data.file.read())
     result = {
-        "embedding": embedding.tolist()
+        image_data.filename: embedding.tolist()
     }    
     return result
+
+
+@app.post('/vectorize batch')
+def vectorize_images(images_data: List[UploadFile] = File(...)) -> dict:
+    embeddings = {}
+    for image_data in images_data:
+        name = image_data.filename
+        embeddings[name] = vectorize_image(image_data.file.read()).tolist()
+    return embeddings
 
 
 #if __name__ == '__main__':
