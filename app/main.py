@@ -19,7 +19,7 @@ data_transforms = transforms.Compose([
     ])
 
 device = torch.device("cuda:0") if torch.cuda.is_available() else "cpu"
-model_path = '../model/similarity_model_colors_mixed.pth'
+model_path = '../model/similarity_model_1_views_part_colors_cut_segment.pth'
 model = models.squeezenet1_1(pretrained=True).to(device)
 model.load_state_dict(torch.load(model_path, map_location=torch.device(device)))
 
